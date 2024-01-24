@@ -65,7 +65,7 @@ def show_image(rgb, segmap):
     plt.draw()
     plt.pause(0.001)
 
-def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc_colors=None, gripper_openings=None, gripper_width=0.08, top_k=None):
+def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc_colors=None, gripper_openings=None, gripper_width=0.08, top_k=None, win_name=None):
     """Visualizes colored point cloud and predicted grasps. If given, colors grasps by segmap regions. 
     Thick grasp is most confident per segment. For scene point cloud predictions, colors grasps according to confidence.
 
@@ -95,8 +95,8 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
             pred_grasps_cam[obj_key] = sorted_pred_grasps_by_score[:top_k]
             scores[obj_key] = scores_per_segment[sorted_scores_idx][:top_k]
 
-
-    fig = mlab.figure('Pred Grasps')
+    win_name = 'Pred Grasps' if win_name is None else win_name
+    fig = mlab.figure(win_name)
     mlab.view(azimuth=180, elevation=180, distance=0.2)
     draw_pc_with_colors(full_pc, pc_colors)
     colors = [cm(1. * i/len(pred_grasps_cam))[:3] for i in range(len(pred_grasps_cam))]
