@@ -83,7 +83,7 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
 
     print('Visualizing...takes time')
     cm = plt.get_cmap('rainbow')
-    cm2 = plt.get_cmap('gist_rainbow')
+    cm2 = plt.get_cmap('Greens')
     
     for obj_key in pred_grasps_cam:
         pred_grasps_cam_per_segment = pred_grasps_cam[obj_key]
@@ -93,7 +93,7 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
         sorted_pred_grasps_by_score = pred_grasps_cam_per_segment[sorted_scores_idx]
         if top_k is not None:
             pred_grasps_cam[obj_key] = sorted_pred_grasps_by_score[:top_k]
-            print(pred_grasps_cam[obj_key].shape)
+            scores[obj_key] = scores_per_segment[sorted_scores_idx][:top_k]
 
 
     fig = mlab.figure('Pred Grasps')
@@ -112,7 +112,11 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
                 draw_grasps([pred_grasps_cam[k][np.argmax(scores[k])]], np.eye(4), color=colors2[k], 
                             gripper_openings=[gripper_openings_k[np.argmax(scores[k])]], tube_radius=0.0025)    
             else:
-                colors3 = [cm2(0.5*score)[:3] for score in scores[k]]
+                #Normalize grasp contact scores before color-mapping
+                norm_scores = (scores[k] - np.min(scores[k]))/(np.max(scores[k]) - np.min(scores[k]))
+                colors3 = [cm2(0.5*score)[:3] for score in norm_scores]
+                print("normalized scores: ", norm_scores)
+                print("colors: ", colors3)
                 draw_grasps(pred_grasps_cam[k], np.eye(4), colors=colors3, gripper_openings=gripper_openings_k)    
     mlab.show()
 
@@ -145,6 +149,7 @@ def draw_pc_with_colors(pc, pc_colors=None, single_color=(0.3,0.3,0.3), mode='2d
         
         scalars = pc_colors[:,0]*256**2 + pc_colors[:,1]*256 + pc_colors[:,2]
         rgb_lut = create_8bit_rgb_lut()
+        print("rgb_lut.shape: ", rgb_lut.shape)
         points_mlab = mlab.points3d(pc[:, 0], pc[:, 1], pc[:, 2], scalars, mode=mode, scale_factor=.0018)
         points_mlab.glyph.scale_mode = 'scale_by_vector'
         points_mlab.module_manager.scalar_lut_manager.lut._vtk_obj.SetTableRange(0, rgb_lut.shape[0])
@@ -188,21 +193,28 @@ def draw_grasps(grasps, cam_pose, gripper_openings, color=(0,1.,0), colors=None,
         pts += np.expand_dims(g[:3, 3], 0)
         pts_homog = np.concatenate((pts, np.ones((7, 1))),axis=1)
         pts = np.dot(pts_homog, cam_pose.T)[:,:3]
-        
+
         color = color if colors is None else colors[i]
-        
+
         all_pts.append(pts)
         connections.append(np.vstack([np.arange(index,   index + N - 1.5),
                                       np.arange(index + 1, index + N - .5)]).T)
         index += N
-        # mlab.plot3d(pts[:, 0], pts[:, 1], pts[:, 2], color=color, tube_radius=tube_radius, opacity=1.0)
-    
+
+        # src = mlab.pipeline.scalar_scatter(pts[:, 0], pts[:, 1], pts[:, 2])
+        # src.mlab_source.dataset.lines = np.vstack([np.arange(index,   index + N - 1.5), np.arange(index + 1, index + N - .5)]).T
+        # src.update()
+        # lines =mlab.pipeline.tube(src, tube_radius=tube_radius, tube_sides=12)
+        # mlab.pipeline.surface(lines, color=color, opacity=1.0)
+
+        mlab.plot3d(pts[:, 0], pts[:, 1], pts[:, 2], color=color, tube_radius=tube_radius, opacity=1.0)
+
     # speeds up plot3d because only one vtk object
-    all_pts = np.vstack(all_pts)
-    connections = np.vstack(connections)
-    src = mlab.pipeline.scalar_scatter(all_pts[:,0], all_pts[:,1], all_pts[:,2])
-    src.mlab_source.dataset.lines = connections
-    src.update()
-    lines =mlab.pipeline.tube(src, tube_radius=tube_radius, tube_sides=12)
-    mlab.pipeline.surface(lines, color=color, opacity=1.0)
+    # all_pts = np.vstack(all_pts)
+    # connections = np.vstack(connections)
+    # src = mlab.pipeline.scalar_scatter(all_pts[:,0], all_pts[:,1], all_pts[:,2])
+    # src.mlab_source.dataset.lines = connections
+    # src.update()
+    # lines =mlab.pipeline.tube(src, tube_radius=tube_radius, tube_sides=12)
+    # mlab.pipeline.surface(lines, color=color, opacity=1.0)
     

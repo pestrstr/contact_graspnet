@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument('--png_path', default='', help='Input data: depth map png in meters')
     parser.add_argument('--top_k', default=-1, type=int, help='Visualize top-K grasp contacts by score. top_k == -1 visualizes all the grasp contacts.')
     parser.add_argument('--K', default=None, help='Flat Camera Matrix, pass as "[fx, 0, cx, 0, fy, cy, 0, 0 ,1]"')
-    parser.add_argument('--z_range', default=[0.2,1.8], help='Z value threshold to crop the input point cloud')
+    parser.add_argument('--z_range', default=[0.1,2.0], help='Z value threshold to crop the input point cloud')
     parser.add_argument('--local_regions', action='store_true', default=False, help='Crop 3D local regions around given segments.')
     parser.add_argument('--filter_grasps', action='store_true', default=False,  help='Filter grasp contacts according to segmap.')
     parser.add_argument('--skip_border_objects', action='store_true', default=False,  help='When extracting local_regions, ignore segments at depth map boundary.')
