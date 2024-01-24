@@ -19,7 +19,7 @@ from data import regularize_pc_point_count, depth2pc, load_available_input_data
 from contact_grasp_estimator import GraspEstimator
 from visualization_utils import visualize_grasps, show_image
 
-def inference(global_config, checkpoint_dir, input_paths, K=None, local_regions=True, skip_border_objects=False, filter_grasps=True, segmap_id=None, z_range=[0.2,1.8], forward_passes=1):
+def inference(global_config, checkpoint_dir, input_paths, K=None, local_regions=True, skip_border_objects=False, filter_grasps=True, segmap_id=None, z_range=[0.2,1.8], forward_passes=1, top_k=None):
     """
     Predict 6-DoF grasp distribution for given model and input data
     
@@ -77,8 +77,9 @@ def inference(global_config, checkpoint_dir, input_paths, K=None, local_regions=
                   pred_grasps_cam=pred_grasps_cam, scores=scores, contact_pts=contact_pts)
 
         # Visualize results          
-        show_image(rgb, segmap)
-        visualize_grasps(pc_full, pred_grasps_cam, scores, plot_opencv_cam=True, pc_colors=pc_colors)
+        # show_image(rgb, segmap)
+        
+        visualize_grasps(pc_full, pred_grasps_cam, scores, plot_opencv_cam=True, pc_colors=pc_colors, top_k=top_k)
         
     if not glob.glob(input_paths):
         print('No files found: ', input_paths)
@@ -89,6 +90,7 @@ if __name__ == "__main__":
     parser.add_argument('--ckpt_dir', default='checkpoints/scene_test_2048_bs3_hor_sigma_001', help='Log dir [default: checkpoints/scene_test_2048_bs3_hor_sigma_001]')
     parser.add_argument('--np_path', default='test_data/7.npy', help='Input data: npz/npy file with keys either "depth" & camera matrix "K" or just point cloud "pc" in meters. Optionally, a 2D "segmap"')
     parser.add_argument('--png_path', default='', help='Input data: depth map png in meters')
+    parser.add_argument('--top_k', default=-1, type=int, help='Visualize top-K grasp contacts by score. top_k == -1 visualizes all the grasp contacts.')
     parser.add_argument('--K', default=None, help='Flat Camera Matrix, pass as "[fx, 0, cx, 0, fy, cy, 0, 0 ,1]"')
     parser.add_argument('--z_range', default=[0.2,1.8], help='Z value threshold to crop the input point cloud')
     parser.add_argument('--local_regions', action='store_true', default=False, help='Crop 3D local regions around given segments.')
@@ -106,5 +108,6 @@ if __name__ == "__main__":
 
     inference(global_config, FLAGS.ckpt_dir, FLAGS.np_path if not FLAGS.png_path else FLAGS.png_path, z_range=eval(str(FLAGS.z_range)),
                 K=FLAGS.K, local_regions=FLAGS.local_regions, filter_grasps=FLAGS.filter_grasps, segmap_id=FLAGS.segmap_id, 
-                forward_passes=FLAGS.forward_passes, skip_border_objects=FLAGS.skip_border_objects)
+                forward_passes=FLAGS.forward_passes, skip_border_objects=FLAGS.skip_border_objects,
+                top_k=None if FLAGS.top_k < 1 else FLAGS.top_k)
 

@@ -1,0 +1,1 @@
+python contact_graspnet/inference.py  --np_path=${IHANNES_PCD_PRED_DATA}/pred_0_0.npy  --local_regions --filter_grasps --top_k 2
