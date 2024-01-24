@@ -4,3 +4,6 @@ checkpoints/*
 **/*.pyc
 **/__pycache__
 .vscode
+
+pcd_data/
+test_data/
