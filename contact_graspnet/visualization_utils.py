@@ -95,6 +95,8 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
             pred_grasps_cam[obj_key] = sorted_pred_grasps_by_score[:top_k]
             scores[obj_key] = scores_per_segment[sorted_scores_idx][:top_k]
 
+        print(pred_grasps_cam[obj_key])
+
     win_name = 'Pred Grasps' if win_name is None else win_name
     fig = mlab.figure(win_name)
     mlab.view(azimuth=180, elevation=180, distance=0.2)
@@ -115,8 +117,8 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
                 #Normalize grasp contact scores before color-mapping
                 norm_scores = (scores[k] - np.min(scores[k]))/(np.max(scores[k]) - np.min(scores[k]))
                 colors3 = [cm2(0.5*score)[:3] for score in norm_scores]
-                print("normalized scores: ", norm_scores)
-                print("colors: ", colors3)
+                # print("normalized scores: ", norm_scores)
+                # print("colors: ", colors3)
                 draw_grasps(pred_grasps_cam[k], np.eye(4), colors=colors3, gripper_openings=gripper_openings_k)    
     mlab.show()
 
