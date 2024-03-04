@@ -357,6 +357,15 @@ class GraspEstimator:
         # Convert to pc 
         pc_full, pc_colors = depth2pc(depth, K, rgb)
 
+        if rgb is not None:
+            print(rgb.shape)
+        
+        # Reshape PCD's xyz for uois inference (to produce segmaps when not provided)
+        xyz = pc_full.reshape(rgb.shape[0], rgb.shape[1], 3)
+        data = dict(rgb=rgb, xyz=xyz)
+
+        np.save(os.path.join('uois_data', 'mustard0') + '.npy', data)
+    
         # Threshold distance
         if pc_colors is not None:
             pc_colors = pc_colors[(pc_full[:,2] < z_range[1]) & (pc_full[:,2] > z_range[0])] 

@@ -95,7 +95,7 @@ def visualize_grasps(full_pc, pred_grasps_cam, scores, plot_opencv_cam=False, pc
             pred_grasps_cam[obj_key] = sorted_pred_grasps_by_score[:top_k]
             scores[obj_key] = scores_per_segment[sorted_scores_idx][:top_k]
 
-        print(pred_grasps_cam[obj_key])
+        # print(pred_grasps_cam[obj_key])
 
     win_name = 'Pred Grasps' if win_name is None else win_name
     fig = mlab.figure(win_name)
@@ -151,7 +151,7 @@ def draw_pc_with_colors(pc, pc_colors=None, single_color=(0.3,0.3,0.3), mode='2d
         
         scalars = pc_colors[:,0]*256**2 + pc_colors[:,1]*256 + pc_colors[:,2]
         rgb_lut = create_8bit_rgb_lut()
-        print("rgb_lut.shape: ", rgb_lut.shape)
+        # print("rgb_lut.shape: ", rgb_lut.shape)
         points_mlab = mlab.points3d(pc[:, 0], pc[:, 1], pc[:, 2], scalars, mode=mode, scale_factor=.0018)
         points_mlab.glyph.scale_mode = 'scale_by_vector'
         points_mlab.module_manager.scalar_lut_manager.lut._vtk_obj.SetTableRange(0, rgb_lut.shape[0])

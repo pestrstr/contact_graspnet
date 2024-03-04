@@ -82,8 +82,8 @@ def inference(global_config, checkpoint_dir, input_paths, K=None, local_regions=
                   pred_grasps_cam=pred_grasps_cam, scores=scores, contact_pts=contact_pts)
 
         # Visualize results          
-        show_image(rgb, segmap)
-
+        # show_image(rgb, segmap)
+        cv2.imwrite('./example.png', rgb)
         visualize_grasps(pc_full, pred_grasps_cam, scores, plot_opencv_cam=True, pc_colors=pc_colors, gripper_openings=gripper_openings, top_k=top_k, win_name=win_name)
         
     if not glob.glob(input_paths):
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser.add_argument('--top_k', default=-1, type=int, help='Visualize top-K grasp contacts by score. top_k == -1 visualizes all the grasp contacts.')
     parser.add_argument('--win_name', type=str, help='Name to give to the Mayavi window for visualization.')
     parser.add_argument('--K', default=None, help='Flat Camera Matrix, pass as "[fx, 0, cx, 0, fy, cy, 0, 0 ,1]"')
-    parser.add_argument('--z_range', default=[0.1,2.0], help='Z value threshold to crop the input point cloud')
+    parser.add_argument('--z_range', default=[0.1,30.0], help='Z value threshold to crop the input point cloud')
     parser.add_argument('--local_regions', action='store_true', default=False, help='Crop 3D local regions around given segments.')
     parser.add_argument('--filter_grasps', action='store_true', default=False,  help='Filter grasp contacts according to segmap.')
     parser.add_argument('--skip_border_objects', action='store_true', default=False,  help='When extracting local_regions, ignore segments at depth map boundary.')
